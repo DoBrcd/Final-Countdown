@@ -1,5 +1,6 @@
 const config = require('./config.json');
 const Discord = require('discord.js');
+const Gif = require('./Models/gif.js');
 
 const bot = new Discord.Client({ disableEveryone: true});
 const dateFinale = new Date();
@@ -22,7 +23,7 @@ function progress(message){
     tempsRestantMin = Math.floor(tempsRestant/60000);
     let txt = `Il reste ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
     if(tempsRestant <= 0) {
-        message.channel.send("https://tenor.com/view/queen-freddie-mercury-hair-flip-ive-got-to-break-free-drag-gif-5096231");
+        message.channel.send(Gif.alea());
         timeToWait = 60000 * 5;
     } else {
         message.channel.send(txt);
@@ -35,7 +36,6 @@ function progress(message){
         } else if((tempsRestant / 1000) < 3600) {//inf à 1h
             timeToWait = 60000 * 5;
         }
-        console.log(timeToWait);
 
         setTimeout(()=> {
             progress(message);
