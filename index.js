@@ -1,6 +1,7 @@
 const config = require('./config.json');
 const Discord = require('discord.js');
 const Gif = require('./Models/gif.js');
+const gif = new Gif();
 
 const bot = new Discord.Client({ disableEveryone: true});
 const dateFinale = new Date();
@@ -23,7 +24,7 @@ function progress(message){
     tempsRestantMin = Math.floor(tempsRestant/60000);
     let txt = `Il reste ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
     if(tempsRestant <= 0) {
-        message.channel.send(Gif.alea());
+        message.channel.send(gif.alea());
         timeToWait = 60000 * 5;
     } else {
         message.channel.send(txt);
