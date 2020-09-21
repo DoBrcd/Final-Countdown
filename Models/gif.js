@@ -1,19 +1,26 @@
+let fs = require('fs');
+
 class Gif {
-    constructor() {
-        this.content = [
-            "https://tenor.com/view/queen-elizabeth-wave-royalty-bye-hi-gif-8402952",
-            "https://tenor.com/view/queen-freddie-mercury-hair-flip-ive-got-to-break-free-drag-gif-5096231",
-            "https://tenor.com/view/forest-gump-tom-hanks-running-sprinting-leaving-gif-5212535",
-            "https://tenor.com/view/pongo-yay-101dalmatians-clock-countdown-gif-11676332",
-            "https://tenor.com/view/kitten-cuckoo-clock-birds-gif-10414681",
-            "https://tenor.com/view/countdown-gif-11215002"
-        ];
+    constructor(db) {
+        this.content = db.content;
+    }
+
+    save(){
+        const jsonData = JSON.stringify(this);
+        fs.writeFile("./Data/gif_content.json", jsonData, function(err) {
+            if(err) {
+                console.log(err);
+            }
+        });
     }
 
     alea() {
         const index = Math.floor(Math.random() * this.content.length);
-        console.log(index);
         return this.content[index];
+    }
+
+    lastAdd() {
+        return this.content[this.content.length - 1];
     }
 }
 

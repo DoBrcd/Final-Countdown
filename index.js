@@ -1,7 +1,14 @@
 const config = require('./config.json');
 const Discord = require('discord.js');
 const Gif = require('./Models/gif.js');
-const gif = new Gif();
+const fs = require('fs');
+
+const gifJson = fs.readFileSync('./Data/gif_content.json', function(err) {
+    if(err) {
+        console.log(err);
+    }
+});
+const gif = new Gif(JSON.parse(gifJson));
 
 const bot = new Discord.Client({ disableEveryone: true});
 const dateFinale = new Date();
@@ -57,10 +64,14 @@ bot.on('message', async message => {
     if(args[0] === "start"){
         console.log("start");
         dateFinale.setHours(args[1].split(':')[0], args[1].split(':')[1]);
-        let count = setTimeout(()=> {
+        setTimeout(()=> {
             progress(message);
         }, 100);
         return message.channel.send("Démarrage");
+    } else if (args[0] == "addGif"){
+        gif.content.push(args[1]);
+        gif.save();
+        return message.channel.send(`Ce gif vient d'être ajouter à l'ensemble de mes gifs : ${gif.lastAdd()}`)
     }
 
 })
