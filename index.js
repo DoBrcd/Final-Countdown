@@ -74,12 +74,18 @@ bot.on('message', async message => {
         gif.content.push(args[1]);
         gif.save();
         return message.channel.send(`Ce gif vient d'être ajouter à l'ensemble de mes gifs : ${gif.lastAdd()}`)
+<<<<<<< Updated upstream
+=======
     } else if (args[0] == "state") {
         tempsRestant = dateFinale - Date.now();
         tempsRestantSec = Math.floor(tempsRestant / 1000) % 60;
         tempsRestantMin = Math.floor(tempsRestant / 60000);
         let txt = `Il reste ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
         return message.channel.send(txt);
+    } else if (args[0] == "listGif"){
+        message.channel.send("Tous mes gifs : \n");
+        return gif.all(message);
+>>>>>>> Stashed changes
     }
 
 })
