@@ -27,7 +27,7 @@ bot.on('ready', async () => {
 
 let timeToWait = 60000 * 5; //toutes les 5 mins
 
-function progress(message) {
+function progress(message, isNewMsg) {
     tempsRestant = dateFinale - Date.now();
     tempsRestantSec = Math.floor(tempsRestant / 1000) % 60;
     tempsRestantMin = Math.floor(tempsRestant / 60000);
@@ -36,9 +36,10 @@ function progress(message) {
         message.channel.send(gif.alea());
         timeToWait = 60000 * 5;
     } else {
-        message.channel.send(txt);
+        let msg = message;
         if ((tempsRestant / 1000) < 10) {//inf à 10sec
             timeToWait = 1000;
+            isNewMsg = true;
         } else if ((tempsRestant / 1000) < 60) {//inf à 1min
             timeToWait = 1000 * 5;
         } else if ((tempsRestant / 1000) < 1200) {//inf à 20min
@@ -46,9 +47,16 @@ function progress(message) {
         } else if ((tempsRestant / 1000) < 3600) {//inf à 1h
             timeToWait = 60000 * 5;
         }
+        if(isNewMsg == true) {
+            message.channel.send(txt).then(message => {
+                msg = message;
+            }).catch(console.error);
+        } else {
+            msg.edit(txt);
+        }
 
-        bot.setTimeout(() => {
-            progress(message);
+        count = bot.setTimeout(() => {
+            progress(msg, false);
         }, timeToWait);
     }
 }
@@ -67,7 +75,7 @@ bot.on('message', async message => {
         console.log("start");
         dateFinale.setHours(args[1].split(':')[0], args[1].split(':')[1]);
         count = bot.setTimeout(() => {
-            progress(message);
+            progress(message, true);
         }, 100);
         return message.channel.send("Démarrage");
     } else if (args[0] == "addGif") {
@@ -75,12 +83,16 @@ bot.on('message', async message => {
         gif.save();
         return message.channel.send(`Ce gif vient d'être ajouter à l'ensemble de mes gifs : ${gif.lastAdd()}`)
     } else if (args[0] == "state") {
-        tempsRestant = dateFinale - Date.now();
+        /*tempsRestant = dateFinale - Date.now();
         tempsRestantSec = Math.floor(tempsRestant / 1000) % 60;
         tempsRestantMin = Math.floor(tempsRestant / 60000);
         let txt = `Il reste ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
-        return message.channel.send(txt);
-    } else if (args[0] == "listGif"){
+        return message.channel.send(txt);*/
+        clearTimeout(count);
+        count = bot.setTimeout(() => {
+            progress(message, true);
+        }, 100);
+    } else if (args[0] == "listGif") {
         message.channel.send("Tous mes gifs : \n");
         return gif.all(message);
     }
