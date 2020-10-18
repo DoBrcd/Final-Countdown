@@ -14,6 +14,23 @@ class Gif {
         });
     }
 
+    all(message) {
+        let txt = "";
+        let compteur = 0;
+        for (let i = 0; i < this.content.length; i++) {
+            compteur++;
+            const gif = this.content[i];
+            txt += gif;
+            txt += "\n";
+            if(compteur % 5 == 0) {
+                message.channel.send(txt);
+                txt = "";
+            }
+        }
+
+        return message.channel.send(txt);
+    }
+
     alea() {
         const index = Math.floor(Math.random() * this.content.length);
         return this.content[index];
