@@ -1,4 +1,4 @@
-const config = require('./config.json');
+require('dotenv').config()
 const Discord = require('discord.js');
 const Gif = require('./Models/gif.js');
 const fs = require('fs');
@@ -65,7 +65,7 @@ bot.on('message', async message => {
     if (message.author.bot) return;
     if (message.channel.type == 'dm') return;
 
-    let prefix = config.prefix;
+    let prefix = process.env.PREFIX;
     let msgArray = message.content.split(" ");
     let cmd = msgArray[0];
     let args = msgArray.slice(1);
@@ -94,6 +94,6 @@ bot.on('message', async message => {
 
 })
 
-bot.login(config.token);
+bot.login(process.env.TOKEN);
 
 module.exports = bot;
