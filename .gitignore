@@ -87,8 +87,7 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-# config.json
 
 Data/gif_content.json
-config_local.json
 .vscode/settings.json
+finalCountdown
