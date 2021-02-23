@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Discord = require('discord.js');
 const Gif = require('./Models/gif.js');
+const TimeManager = require('./Models/timeGestion.js');
 const fs = require('fs');
 
 const gifJson = fs.readFileSync('./Data/gif_content.json', function (err) {
@@ -8,11 +9,17 @@ const gifJson = fs.readFileSync('./Data/gif_content.json', function (err) {
         console.log(err);
     }
 });
+const timeJson = fs.readFileSync('./Data/channelTiming.json', function (err) {
+    if (err) {
+        console.log(err);
+    }
+});
 const gif = new Gif(JSON.parse(gifJson));
+const timeManager = new TimeManager(JSON.parse(timeJson));
 
 const bot = new Discord.Client({ disableEveryone: true });
 const dateFinale = new Date();
-let count = bot.setTimeout(() => { }, 1);
+let count = [bot.setTimeout(() => { }, 1)];
 
 let tempsRestant;
 let tempsRestantSec;
@@ -25,27 +32,28 @@ bot.on('ready', async () => {
 })
 
 
-let timeToWait = 60000 * 5; //toutes les 5 mins
+let timeToWait = [60000 * 5]; //toutes les 5 mins
 
 function progress(message, isNewMsg) {
-    tempsRestant = dateFinale - Date.now();
+    tempsRestant = timeManager.getTime(message) - Date.now();
     tempsRestantSec = Math.floor(tempsRestant / 1000) % 60;
-    tempsRestantMin = Math.floor(tempsRestant / 60000);
-    let txt = `Il reste ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
+    tempsRestantMin = Math.floor(tempsRestant / 60000) % 60;
+    tempsRestantHours = Math.floor(tempsRestant / 3600000);
+    let txt = `Il reste ${tempsRestantHours} heures, ${tempsRestantMin} minutes et ${tempsRestantSec} secondes`;
     if (tempsRestant <= 0) {
         message.channel.send(gif.alea());
-        timeToWait = 60000 * 5;
+        timeToWait[message.channel.id] = 60000 * 5;
     } else {
         let msg = message;
         if ((tempsRestant / 1000) < 10) {//inf à 10sec
-            timeToWait = 1000;
+            timeToWait[message.channel.id] = 1000;
             isNewMsg = true;
         } else if ((tempsRestant / 1000) < 60) {//inf à 1min
-            timeToWait = 1000 * 5;
+            timeToWait[message.channel.id] = 1000 * 5;
         } else if ((tempsRestant / 1000) < 1200) {//inf à 20min
-            timeToWait = 60000 * 1;
+            timeToWait[message.channel.id] = 60000 * 1;
         } else if ((tempsRestant / 1000) < 3600) {//inf à 1h
-            timeToWait = 60000 * 5;
+            timeToWait[message.channel.id] = 60000 * 5;
         }
         if(isNewMsg == true) {
             message.channel.send(txt).then(message => {
@@ -55,9 +63,9 @@ function progress(message, isNewMsg) {
             msg.edit(txt);
         }
 
-        count = bot.setTimeout(() => {
+        count[message.channel.id] = bot.setTimeout(() => {
             progress(msg, false);
-        }, timeToWait);
+        }, timeToWait[message.channel.id]);
     }
 }
 
@@ -73,8 +81,10 @@ bot.on('message', async message => {
     if (cmd != prefix) return
     if (args[0] === "start") {
         console.log("start");
-        dateFinale.setHours(args[1].split(':')[0], args[1].split(':')[1]);
-        count = bot.setTimeout(() => {
+        timeManager.createTimer(message, args[1]);
+        //dateFinale.setHours(args[1].split(':')[0], args[1].split(':')[1]);
+        timeToWait[message.channel.id] = timeToWait[0];
+        count[message.channel.id] = bot.setTimeout(() => {
             progress(message, true);
         }, 100);
         return message.channel.send("Démarrage");
@@ -84,7 +94,7 @@ bot.on('message', async message => {
         return message.channel.send(`Ce gif vient d'être ajouter à l'ensemble de mes gifs : ${gif.lastAdd()}`)
     } else if (args[0] == "state") {
         clearTimeout(count);
-        count = bot.setTimeout(() => {
+        count[message.channel.id] = bot.setTimeout(() => {
             progress(message, true);
         }, 100);
     } else if (args[0] == "listGif") {
