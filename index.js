@@ -4,6 +4,10 @@ const Gif = require('./Models/gif.js');
 const TimeManager = require('./Models/timeGestion.js');
 const fs = require('fs');
 
+const http = require("http");
+const host = 'localhost';
+const port = 8080;
+
 const gifJson = fs.readFileSync('./Data/gif_content.json', function (err) {
     if (err) {
         console.log(err);
@@ -105,5 +109,16 @@ bot.on('message', async message => {
 })
 
 bot.login(process.env.TOKEN);
+
+const requestListener = function (req, res) {
+    res.setHeader("Content-Type", "text/html");
+    res.writeHead(200);
+    res.end(`<html><body><h1>This is HTML</h1></body></html>`);
+};
+
+const server = http.createServer(requestListener);
+server.listen(port, host, () => {
+    console.log(`Server is running on http://${host}:${port}`);
+});
 
 module.exports = bot;
