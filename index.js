@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const http = require("http");
 const host = 'localhost';
-const port = 8080;
+const port = process.env.PORT || 3000;
 
 const gifJson = fs.readFileSync('./Data/gif_content.json', function (err) {
     if (err) {
